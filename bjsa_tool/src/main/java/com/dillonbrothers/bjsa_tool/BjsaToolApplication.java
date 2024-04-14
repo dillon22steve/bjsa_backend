@@ -8,6 +8,7 @@ public class BjsaToolApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BjsaToolApplication.class, args);
+		System.out.println("Hello World");
 	}
 
 }
