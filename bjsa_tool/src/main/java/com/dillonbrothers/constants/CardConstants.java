@@ -5,6 +5,7 @@ import com.dillonbrothers.pojos.Card;
 public class CardConstants {
 
     public static final Card[] CARDS = {
+        new Card('a', 1),
         new Card('A', 11),
         new Card('K', 10),
         new Card('Q', 10),
@@ -17,7 +18,7 @@ public class CardConstants {
         new Card('5', 5),
         new Card('4', 4),
         new Card('3', 3),
-        new Card('2', 2)
+        new Card('2', 2),
     };
     
 }
