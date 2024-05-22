@@ -16,7 +16,9 @@ public class EvDifferentialRequest {
 	private int dealerUpCardValue;
 
 	private BigInteger executionTimes;
+	private static BigInteger iterate = new BigInteger("1");
 	
+	private PlayerAction deviation;
 	private PlayerAction playerAction;
 	private DealerAction dealerAction;
 	
@@ -24,15 +26,18 @@ public class EvDifferentialRequest {
 	private String startingHand;
 
 	private ArrayList<Hand> playerHands;
+	private ArrayList<Hand> playerStartingHands;
     private Hand dealerHand;
+	private Hand dealerStartingHand;
 
     private int bet, winnings, losses, origBet;
+	private int handsWon, handsLost;
     private ExpectedValueResponse response;
 
     private SecureRandom rng;
 
 
-	public EvDifferentialRequest(String startingHand, char dealerUpCard, BigInteger executionTimes, int origBet) {
+	public EvDifferentialRequest(String startingHand, char dealerUpCard, BigInteger executionTimes, int origBet, PlayerAction deviation) {
 		rng = null;
         try {
             rng = SecureRandom.getInstance("SHA1PRNG");
@@ -45,15 +50,18 @@ public class EvDifferentialRequest {
 		this.startingHand = startingHand;
 		this.dealerUpCard = dealerUpCard;
 
-		createPlayerAndDealerHands();
+		this.deviation = deviation;
 
         this.winnings = 0;
         this.losses = 0;
 
+		this.handsLost = 0;
+		this.handsWon = 0;
+
 		this.origBet = origBet;
 		this.bet = origBet;
 
-        response = new ExpectedValueResponse();
+		createPlayerAndDealerHands();
 	} //constructor
 
 
@@ -96,21 +104,26 @@ public class EvDifferentialRequest {
 
 		Hand playerHandToAdd = new Hand(playerFirstCard, playerSecondCard);
 		this.dealerHand = new Hand(dealerCard);
+		this.dealerHand.addCardToHand(generateRandomCard());
 
+		dealerStartingHand = dealerHand;
+
+		playerHands = new ArrayList<Hand>();
 		playerHands.add(playerHandToAdd);
-	}
+	} //createPlayerAndDealerHands
 
 
 	public ExpectedValueResponse calculateExpectedValue() {
 		BigInteger currentIteration = new BigInteger("0");
         while (executionTimes.compareTo(currentIteration) > 0) {
             boolean playerBusted = false;
+			boolean dealerBusted = false;
             performDeviation();
 
             for (Hand currentHand : playerHands) {
                 if (currentHand.hasBlackJack()) {
                     winnings = winnings + (this.bet * (3 / 2));
-                    response.incrementHandsWon();
+                    handsWon++;
                 } else {
 
 					//Perform basic strategy until the player busts or stands.
@@ -119,27 +132,56 @@ public class EvDifferentialRequest {
 						if (currentHand.getValue() > 21) {
 							playerBusted = true;
 							losses = losses + bet;
-							response.incrementHandsLost();
+							handsLost++;
 						} //if
 					} //while
 
 					while (dealerHand.getValue() < 16) {
 						dealerHand.addCardToHand(generateRandomCard());
 					} //while
+					if (dealerHand.getValue() > 21) {
+						dealerBusted = true;
+					}
+					
+
+					//Check to see if the player won or lost the hand.
+					if (!playerBusted) {
+						if (dealerBusted) {
+							winnings = winnings + bet;
+							handsWon++;
+						} else {
+							if (currentHand.getValue() > dealerHand.getValue()) {
+								winnings = winnings + bet;
+								handsWon++;
+							} else {
+								losses = losses + bet;
+								handsLost++;
+							} //if
+						} //if
+					} //if
                 } //if
+
+				//reset these variables for the next hand.
+				bet = origBet;
+				playerBusted = false;
+				dealerBusted = false;
             } //for
             
-            currentIteration.add(BigInteger.ONE);
+            currentIteration.add(iterate);
+			System.out.println("currentIteration: " + currentIteration + ", executionTimes.compareTo(): " + (executionTimes.compareTo(currentIteration)));
+			resetHands();
+			break;
         } //while
 
-		//calculate expected value
+		response = new ExpectedValueResponse(handsWon, handsLost, winnings, losses);
 
 		return response;
     } //calculateExpectedValue
 
 
     private Card generateRandomCard() {
-        int randIndex = (int)(rng.nextInt(CardConstants.CARDS.length));
+		//The (.length - 1) + 1 here is so that it doesn't generate the ace with a value of 1.
+        int randIndex = (int)(rng.nextInt(CardConstants.CARDS.length - 1)) + 1;
         Card randCard = CardConstants.CARDS[randIndex];
 
         return randCard;
@@ -147,7 +189,33 @@ public class EvDifferentialRequest {
 
 
     private void performDeviation() {
-		
+		System.out.println("Performing deviation");
+		switch (deviation) {
+			case PlayerAction.HIT:
+				hit(playerHands.get(0));
+				break;
+			case PlayerAction.DOUBLE:
+				doubleBetAndStand(playerHands.get(0));
+				break;
+			case PlayerAction.STAND:
+				playerAction = PlayerAction.STAND;
+				break;
+			case PlayerAction.SPLIT:
+				split(playerHands.get(0));
+				break;
+		} //switch
+
+		//Will be used later to reset the player's hands.
+		playerStartingHands = new ArrayList<Hand>();
+		for (Hand hand : playerHands) {
+			playerStartingHands.add(hand);
+			for (Card card : hand.getCards()) {
+				System.out.print(card.getCardType() + ", ");
+			}
+			System.out.print("\n");
+		} //for
+
+		System.out.println();
     } //performDeviation
 
 
@@ -162,16 +230,18 @@ public class EvDifferentialRequest {
 			} //if
 		} else {
 			playerAction = PlayerAction.SPLIT;
-			Card firstCard = currentHand.getCards().get(0);
-			Card secondCard = generateRandomCard();
-			Hand splitHand = new Hand(firstCard, secondCard);
-			playerHands.add(splitHand);
+			split(currentHand);
 		} //if
 	} //calculateExpectedValue
 
 
 	private void performBasicStrategyHardTotal(Hand currentHand) {
 		int handValue = currentHand.getValue();
+		System.out.print("Performing basic strategy hard total on handValue: ");
+		for (Card  card : currentHand.getCards()) {
+			System.out.print(card.getCardType() + ", ");
+		}
+		System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
 
 		if (handValue >= 17) {
 			playerAction = PlayerAction.STAND;
@@ -205,17 +275,22 @@ public class EvDifferentialRequest {
 			playerAction = PlayerAction.HIT;
 		} //if
 
+		System.out.print("New hand after " + playerAction + ": ");
+
 
 		switch (playerAction) {
 			case PlayerAction.HIT:
 				hit(currentHand);
 				break;
 			case PlayerAction.DOUBLE:
-				bet = bet * 2;
-				hit(currentHand);
-				playerAction = PlayerAction.STAND;
+				doubleBetAndStand(currentHand);
 				break;
 		} //switch
+
+		for (Card  card : currentHand.getCards()) {
+			System.out.print(card.getCardType() + ", ");
+		} //for
+		System.out.print("\n");
 	} //performBasicStrategyHardTotal
 
 
@@ -226,6 +301,8 @@ public class EvDifferentialRequest {
 				softTotal += currentCard.getValue();
 			} //if
 		} //for
+		System.out.print("Performing basic strategy soft total on soft total: " + softTotal);
+		System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
 
 		if (softTotal == 9) {
 			playerAction = PlayerAction.STAND;
@@ -263,17 +340,23 @@ public class EvDifferentialRequest {
 			} //if
 		} //if
 
+
+		System.out.print("New hand after " + playerAction);
+
 		
 		switch (playerAction) {
 			case PlayerAction.HIT:
 				hit(currentHand);
 				break;
 			case PlayerAction.DOUBLE:
-				bet = bet * 2;
-				hit(currentHand);
-				playerAction = PlayerAction.STAND;
+				doubleBetAndStand(currentHand);
 				break;
 		} //switch
+
+		for (Card  card : currentHand.getCards()) {
+			System.out.print(card.getCardType());
+		} //for
+		System.out.print("\n");
 	} //performBasicStrategySoftTotal
 
 
@@ -330,5 +413,34 @@ public class EvDifferentialRequest {
 		Card hitCard = generateRandomCard();
 		currentHand.addCardToHand(hitCard);
 	} //hit
+
+
+	private void split(Hand currentHand) {
+		Card splitCard = playerHands.get(0).getCards().get(0);
+		Card newCard = generateRandomCard();
+		Hand newHand = new Hand(splitCard, newCard);
+		playerHands.add(newHand);
+
+		newCard = generateRandomCard();
+		currentHand.getCards().remove(1);
+		currentHand.addCardToHand(newCard);
+	} //split
+
+
+	private void doubleBetAndStand(Hand currentHand) {
+		bet = bet * 2;
+		hit(playerHands.get(0));
+		playerAction = PlayerAction.STAND;
+	} //doubleAndStand
+
+
+	private void resetHands() {
+		playerHands = new ArrayList<Hand>();
+		for (Hand hand : playerStartingHands) {
+			playerHands.add(hand);
+		} //for
+
+		dealerHand = new Hand(dealerStartingHand.getCards().get(0), dealerStartingHand.getCards().get(1));
+	} //resetHands
 
 } //EvDifferentialRequest

@@ -3,12 +3,21 @@ package com.dillonbrothers.bjsa_tool;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.dillonbrothers.bjsa_tool.model.EvDifferentialRequest;
+import com.dillonbrothers.bjsa_tool.model.PlayerAction;
+import com.dillonbrothers.results_response.ExpectedValueResponse;
+
+import java.math.BigInteger;
+
 @SpringBootApplication
 public class BjsaToolApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BjsaToolApplication.class, args);
-		System.out.println("Hello World");
+		
+		EvDifferentialRequest request = new EvDifferentialRequest(
+			"4, 4", '9', new BigInteger("1"), 20, PlayerAction.SPLIT);
+		ExpectedValueResponse response = request.calculateExpectedValue();
 	}
 
 }

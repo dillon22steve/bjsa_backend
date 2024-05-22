@@ -4,6 +4,7 @@ public class ExpectedValueResponse {
 
     private int handsWon;
     private int handsLost;
+
     private String expectedValue;
 
 
@@ -12,6 +13,11 @@ public class ExpectedValueResponse {
         this.handsLost = 0;
         this.expectedValue = "";
     } //constructor
+
+    public ExpectedValueResponse(int handsWon, int handsLost, int moneyWon, int moneyLost) {
+        int calculation = (handsWon * moneyWon) - (handsLost * moneyLost);
+        expectedValue = "Expected value: " + calculation;
+    }
 
 
     public int getHandsWon() {
