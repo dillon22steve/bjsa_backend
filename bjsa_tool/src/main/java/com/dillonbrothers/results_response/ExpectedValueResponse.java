@@ -16,6 +16,8 @@ public class ExpectedValueResponse {
 
     public ExpectedValueResponse(int handsWon, int handsLost, int moneyWon, int moneyLost) {
         int calculation = (handsWon * moneyWon) - (handsLost * moneyLost);
+        this.handsWon = handsWon;
+        this.handsLost = handsLost;
         expectedValue = "Expected value: " + calculation;
     }
 

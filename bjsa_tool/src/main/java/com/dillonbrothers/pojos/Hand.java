@@ -18,6 +18,7 @@ public class Hand {
 
     public Hand() {
         hasBlackJack = false;
+        this.cards = new ArrayList<Card>();
     } //constructor
 
     public Hand(Card firstCard, Card secondCard) {
