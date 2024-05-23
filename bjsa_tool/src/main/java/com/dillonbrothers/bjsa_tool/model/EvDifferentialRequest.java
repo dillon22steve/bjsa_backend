@@ -121,6 +121,9 @@ public class EvDifferentialRequest {
 
 		playerHands = new ArrayList<Hand>();
 		playerHands.add(playerHandToAdd);
+
+		playerStartingHands = new ArrayList<Hand>();
+		playerStartingHands.add(new Hand(playerFirstCard, playerSecondCard));
 	} //createPlayerAndDealerHands
 
 
@@ -252,14 +255,10 @@ public class EvDifferentialRequest {
 		} //switch
 
 		//Will be used later to reset the player's hands.
-		playerStartingHands = new ArrayList<Hand>();
 		for (Hand hand : playerHands) {
-			Hand handToAdd = new Hand();
 			for (Card card : hand.getCards()) {
 				System.out.print(card.getCardType() + ", ");
-				handToAdd.addCardToHand(card);
 			}
-			playerStartingHands.add(handToAdd);
 			System.out.print("\n");
 		} //for
 		System.out.println();
@@ -452,6 +451,11 @@ public class EvDifferentialRequest {
 					} //switch
 				} //if
 			} //if
+
+			if ((cardOne.getCardType() == 'A' || cardOne.getCardType() == 'a') &&
+				(cardTwo.getCardType() == 'A' || cardTwo.getCardType() == 'a')) {
+					return true;
+			} //if
 		} //if
 
 		return false;
@@ -465,13 +469,25 @@ public class EvDifferentialRequest {
 
 
 	private void split(Hand currentHand) {
-		Card splitCard = playerHands.get(0).getCards().get(0);
+		Card splitCard = null;
+		if (currentHand.hasAce()) {
+			if (currentHand.getCards().get(0).getCardType() == 'A') {
+				splitCard = currentHand.getCards().get(0);
+				currentHand.removeCardFromHand(1);
+			} else {
+				splitCard = currentHand.getCards().get(1);
+				currentHand.removeCardFromHand(0);
+			}
+		} else {
+			splitCard = playerHands.get(0).getCards().get(0);
+			currentHand.removeCardFromHand(1);
+		}
+
 		Card newCard = generateRandomCard();
 		Hand newHand = new Hand(splitCard, newCard);
 		playerHands.add(newHand);
 
 		newCard = generateRandomCard();
-		currentHand.getCards().remove(1);
 		currentHand.addCardToHand(newCard);
 	} //split
 

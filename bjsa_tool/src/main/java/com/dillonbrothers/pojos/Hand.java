@@ -79,6 +79,12 @@ public class Hand {
     } //addCardToHand
 
 
+    public void removeCardFromHand(int index) {
+        this.value = value - (cards.get(index).getValue());
+        cards.remove(index);
+    } //removeCardFromHand
+
+
     private void removeExistingAce() {
         for (int i = 0; i < cards.size(); i++) {
             if (cards.get(i).getCardType() == 'A') {
