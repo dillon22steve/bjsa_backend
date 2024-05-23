@@ -16,7 +16,6 @@ public class EvDifferentialRequest {
 	private int dealerUpCardValue;
 
 	private BigInteger executionTimes;
-	private static BigInteger iterate = new BigInteger("1");
 	
 	private PlayerAction deviation;
 	private PlayerAction playerAction;
@@ -61,6 +60,10 @@ public class EvDifferentialRequest {
 		this.origBet = origBet;
 		this.bet = origBet;
 
+		//This is just an arbitrary start point so that the while loop in the expected value will run.
+		//The action will be updated then to account for whatever the player's hand is and dealer upcard is.
+		this.playerAction = PlayerAction.HIT;
+
 		createPlayerAndDealerHands();
 	} //constructor
 
@@ -87,6 +90,7 @@ public class EvDifferentialRequest {
 		Card dealerCard = null;
 
 
+		//Loop through the card constants and find the one that has the provided character.
 		for (int i = 0; i < CardConstants.CARDS.length; i++) {
 			if (CardConstants.CARDS[i].getCardType() == firstCard) {
 				playerFirstCard = CardConstants.CARDS[i];
@@ -102,6 +106,7 @@ public class EvDifferentialRequest {
 			} //if
 		} //for
 
+
 		Hand playerHandToAdd = new Hand(playerFirstCard, playerSecondCard);
 		this.dealerHand = new Hand(dealerCard);
 		this.dealerHand.addCardToHand(generateRandomCard());
@@ -115,21 +120,24 @@ public class EvDifferentialRequest {
 
 
 	public ExpectedValueResponse calculateExpectedValue() {
-		performDeviation();
-
         while (executionTimes.compareTo(BigInteger.ZERO) >= 0) {
+			System.out.println("Next iteration");
+			System.out.println();
+			
             boolean playerBusted = false;
 			boolean dealerBusted = false;
 
+			performDeviation();
+
             for (Hand currentHand : playerHands) {
-				System.out.print("Current hand iteration: ");
+				System.out.print("Beginning Current hand: ");
 				for (Card card : currentHand.getCards()) {
 					System.out.print(card.getCardType() + ", ");
 				}
 				System.out.print("\n");
 
                 if (currentHand.hasBlackJack()) {
-                    winnings = winnings + (this.bet * (3 / 2));
+                    winnings = winnings + (bet * (3 / 2));
                     handsWon++;
                 } else {
 
@@ -144,6 +152,7 @@ public class EvDifferentialRequest {
 						} //if
 					} //while
 
+
 					while (dealerHand.getValue() < 16) {
 						dealerHand.addCardToHand(generateRandomCard());
 					} //while
@@ -151,7 +160,14 @@ public class EvDifferentialRequest {
 						dealerBusted = true;
 					} //if
 
-					System.out.print("Dealer hand: ");
+
+					System.out.print("Final player current hand: ");
+					for (Card card : currentHand.getCards()) {
+						System.out.print(card.getCardType() + ", ");
+					} //for
+					System.out.print("\n");
+
+					System.out.print("Dealer final hand: ");
 					for (Card card : dealerHand.getCards()) {
 						System.out.print(card.getCardType() + ", ");
 					}
@@ -183,11 +199,13 @@ public class EvDifferentialRequest {
 				playerBusted = false;
 				dealerBusted = false;
 
-				//Resetting this so the while loop above will run on the next iteration.
+				//Resetting this so the basic strategy while loop above will run on the next iteration.
+				//If it is still set to stand it will not run.
 				playerAction = PlayerAction.HIT;
+				System.out.println();
             } //for
             
-			executionTimes = executionTimes.subtract(iterate);
+			executionTimes = executionTimes.subtract(BigInteger.ONE);
 			resetHands();
         } //while
 
@@ -459,15 +477,11 @@ public class EvDifferentialRequest {
 
 	private void resetHands() {
 		playerHands.clear();
-		for (Hand hand : playerStartingHands) {
-			Hand handToAdd = new Hand();
-			for (Card card : hand.getCards()) {
-				handToAdd .addCardToHand(card);
-			} //for
-			playerHands.add(handToAdd);
-		} //for
+		Hand playerHand = new Hand(playerStartingHands.get(0).getCards().get(0), playerStartingHands.get(0).getCards().get(1));
+		playerHands.add(playerHand);
 
-		dealerHand = new Hand(dealerStartingHand.getCards().get(0), dealerStartingHand.getCards().get(1));
+		dealerHand = new Hand(dealerStartingHand.getCards().get(0));
+		dealerHand.addCardToHand(generateRandomCard());
 	} //resetHands
 
 } //EvDifferentialRequest

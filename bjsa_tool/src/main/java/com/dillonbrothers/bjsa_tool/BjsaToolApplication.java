@@ -16,7 +16,7 @@ public class BjsaToolApplication {
 		SpringApplication.run(BjsaToolApplication.class, args);
 		
 		EvDifferentialRequest request = new EvDifferentialRequest(
-			"4, 4", '3', new BigInteger("3"), 20, PlayerAction.SPLIT);
+			"5, 4", '8', new BigInteger("3"), 20, PlayerAction.DOUBLE);
 		ExpectedValueResponse response = request.calculateExpectedValue();
 		System.out.println(response.getHandsWon() + " won vs " + response.getHandsLost() + " lost");
 	} //main
