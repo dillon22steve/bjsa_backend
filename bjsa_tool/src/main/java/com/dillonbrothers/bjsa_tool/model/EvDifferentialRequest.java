@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.dillonbrothers.constants.CardConstants;
 import com.dillonbrothers.pojos.Card;
 import com.dillonbrothers.pojos.Hand;
-import com.dillonbrothers.results_response.ExpectedValueResponse;
+import com.dillonbrothers.results_response.ExpectedValueResult;
 
 public class EvDifferentialRequest {
 	
@@ -19,6 +19,8 @@ public class EvDifferentialRequest {
 	
 	private PlayerAction deviation;
 	private PlayerAction playerAction;
+
+	private boolean isExperimentalStrategy;
 	
 	//comma separated format (A, 2, 3, ... 10), 2 values passed
 	private String startingHand;
@@ -31,12 +33,14 @@ public class EvDifferentialRequest {
 
     private int bet, winnings, losses, origBet;
 	private int handsWon, handsLost;
-    private ExpectedValueResponse response;
+    private ExpectedValueResult response;
 
     private SecureRandom rng;
 
 
-	public EvDifferentialRequest(String startingHand, char dealerUpCard, BigInteger executionTimes, int origBet, PlayerAction deviation) {
+	public EvDifferentialRequest(String startingHand, char dealerUpCard, BigInteger executionTimes, 
+		int origBet, PlayerAction deviation, boolean isExperimentalStrategy) {
+
 		rng = null;
         try {
             rng = SecureRandom.getInstance("SHA1PRNG");
@@ -50,6 +54,8 @@ public class EvDifferentialRequest {
 		this.dealerUpCard = dealerUpCard;
 
 		this.deviation = deviation;
+
+		this.isExperimentalStrategy = isExperimentalStrategy;
 
         this.winnings = 0;
         this.losses = 0;
@@ -119,7 +125,7 @@ public class EvDifferentialRequest {
 
 
 
-	public ExpectedValueResponse calculateExpectedValue() {
+	public ExpectedValueResult calculateExpectedValue() {
         while (executionTimes.compareTo(BigInteger.ZERO) >= 0) {
 			System.out.println("Next iteration");
 			System.out.println();
@@ -127,7 +133,9 @@ public class EvDifferentialRequest {
             boolean playerBusted = false;
 			boolean dealerBusted = false;
 
-			performDeviation();
+			if (isExperimentalStrategy) {
+				performDeviation();
+			} //if
 
             for (Hand currentHand : playerHands) {
 				System.out.print("Beginning Current hand: ");
@@ -209,7 +217,7 @@ public class EvDifferentialRequest {
 			resetHands();
         } //while
 
-		response = new ExpectedValueResponse(handsWon, handsLost, winnings, losses);
+		response = new ExpectedValueResult(handsWon, handsLost, winnings, losses);
 
 		return response;
     } //calculateExpectedValue

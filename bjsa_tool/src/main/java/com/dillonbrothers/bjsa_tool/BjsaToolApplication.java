@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.dillonbrothers.bjsa_tool.model.EvDifferentialRequest;
 import com.dillonbrothers.bjsa_tool.model.PlayerAction;
-import com.dillonbrothers.results_response.ExpectedValueResponse;
+import com.dillonbrothers.results_response.ExpectedValueResult;
 
 import java.math.BigInteger;
 
@@ -16,9 +16,10 @@ public class BjsaToolApplication {
 		SpringApplication.run(BjsaToolApplication.class, args);
 		
 		EvDifferentialRequest request = new EvDifferentialRequest(
-			"5, 4", '8', new BigInteger("3"), 20, PlayerAction.DOUBLE);
-		ExpectedValueResponse response = request.calculateExpectedValue();
-		System.out.println(response.getHandsWon() + " won vs " + response.getHandsLost() + " lost");
+			"5, 4", '8', new BigInteger("3"), 20, PlayerAction.DOUBLE, true);
+
+		ExpectedValueResult experimentalStrategyResponse = request.calculateExpectedValue();
+		System.out.println(experimentalStrategyResponse.getHandsWon() + " won vs " + experimentalStrategyResponse.getHandsLost() + " lost");
 	} //main
 
 } //BjsaToolApplication
