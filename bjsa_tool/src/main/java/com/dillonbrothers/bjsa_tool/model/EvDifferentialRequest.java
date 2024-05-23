@@ -485,7 +485,17 @@ public class EvDifferentialRequest {
 
 	private void resetHands() {
 		playerHands.clear();
-		Hand playerHand = new Hand(playerStartingHands.get(0).getCards().get(0), playerStartingHands.get(0).getCards().get(1));
+		Card playerCard1 = playerStartingHands.get(0).getCards().get(0);
+		Card playerCard2 = playerStartingHands.get(0).getCards().get(1);
+
+		if (playerCard1.getCardType() == 'a') {
+			playerCard1 = CardConstants.CARDS[1];
+		}
+		if (playerCard2.getCardType() == 'a') {
+			playerCard2 = CardConstants.CARDS[1];
+		}
+
+		Hand playerHand = new Hand(playerCard1, playerCard2);
 		playerHands.add(playerHand);
 
 		dealerHand = new Hand(dealerStartingHand.getCards().get(0));
