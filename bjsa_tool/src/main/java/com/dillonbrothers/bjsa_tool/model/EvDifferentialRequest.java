@@ -10,6 +10,7 @@ import com.dillonbrothers.pojos.Card;
 import com.dillonbrothers.pojos.Hand;
 import com.dillonbrothers.results_response.ExpectedValueResult;
 
+
 public class EvDifferentialRequest {
 	
 	private char dealerUpCard;
@@ -196,6 +197,8 @@ public class EvDifferentialRequest {
 								System.out.println("Player won");
 								winnings = winnings + bet;
 								handsWon++;
+							} else if (currentHand.getValue() == dealerHand.getValue()) {
+
 							} else {
 								System.out.println("Player lost");
 								losses = losses + bet;
@@ -288,6 +291,7 @@ public class EvDifferentialRequest {
 			System.out.print(card.getCardType() + ", ");
 		}
 		System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
+		
 
 		if (handValue >= 17) {
 			playerAction = PlayerAction.STAND;

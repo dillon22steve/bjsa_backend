@@ -63,6 +63,7 @@ public class Hand {
             hasAce = true;
         } //if
 
+        cards.add(cardToAdd);
         value = value + cardToAdd.getValue();
 
         //If the value of the hand is greater than 21 but the hand has an ace. Find the ace of
@@ -70,8 +71,6 @@ public class Hand {
         if (value > 21 && hasAce) {
             removeExistingAce();
         } //if
-
-        cards.add(cardToAdd);
 
         if (cards.size() == 2 && value == 21) {
             hasBlackJack = true;
