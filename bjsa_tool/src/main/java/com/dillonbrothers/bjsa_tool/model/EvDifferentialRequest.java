@@ -6,6 +6,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 
 import com.dillonbrothers.constants.CardConstants;
+import com.dillonbrothers.constants.Deck;
 import com.dillonbrothers.pojos.Card;
 import com.dillonbrothers.pojos.Hand;
 import com.dillonbrothers.results_response.ExpectedValueResult;
@@ -97,18 +98,19 @@ public class EvDifferentialRequest {
 		Card dealerCard = null;
 
 
-		//Loop through the card constants and find the one that has the provided character.
-		for (int i = 0; i < CardConstants.CARDS.length; i++) {
-			if (CardConstants.CARDS[i].getCardType() == firstCard) {
-				playerFirstCard = CardConstants.CARDS[i];
+		for (int i = 0; i < 13; i++) {
+			Card cardAtIndex = Deck.DECK[i];
+
+			if (cardAtIndex.getCardType() == firstCard) {
+				playerFirstCard = cardAtIndex;
 			} //if
 
-			if (CardConstants.CARDS[i].getCardType() == secondCard) {
-				playerSecondCard = CardConstants.CARDS[i];
+			if (cardAtIndex.getCardType() == secondCard) {
+				playerSecondCard = cardAtIndex;
 			} //if
 
-			if (CardConstants.CARDS[i].getCardType() == dealerUpCard) {
-				dealerCard = CardConstants.CARDS[i];
+			if (cardAtIndex.getCardType() == dealerUpCard) {
+				dealerCard = cardAtIndex;
 				dealerUpCardValue = dealerCard.getValue();
 			} //if
 		} //for
@@ -167,7 +169,7 @@ public class EvDifferentialRequest {
 
 					while (dealerHand.getValue() < 16) {
 						dealerHand.addCardToHand(generateRandomCard());
-					} //while
+					} //while  change to make dealer hit on soft 17
 					if (dealerHand.getValue() > 21) {
 						dealerBusted = true;
 					} //if
@@ -198,7 +200,7 @@ public class EvDifferentialRequest {
 								winnings = winnings + bet;
 								handsWon++;
 							} else if (currentHand.getValue() == dealerHand.getValue()) {
-
+								//push
 							} else {
 								System.out.println("Player lost");
 								losses = losses + bet;
@@ -232,8 +234,8 @@ public class EvDifferentialRequest {
 
     private Card generateRandomCard() {
 		//The (.length - 1) + 1 here is so that it doesn't generate the ace with a value of 1.
-        int randIndex = (int)(rng.nextInt(CardConstants.CARDS.length - 1)) + 1;
-        Card randCard = CardConstants.CARDS[randIndex];
+		int randIndex = (int)(rng.nextInt(Deck.discardPileIndex) - 1) + 1;
+		Card randCard = Deck.removeCardFromDeck(randIndex);
 
         return randCard;
     } //generateRandomCard
@@ -257,7 +259,6 @@ public class EvDifferentialRequest {
 				break;
 		} //switch
 
-		//Will be used later to reset the player's hands.
 		for (Hand hand : playerHands) {
 			for (Card card : hand.getCards()) {
 				System.out.print(card.getCardType() + ", ");
@@ -291,7 +292,7 @@ public class EvDifferentialRequest {
 			System.out.print(card.getCardType() + ", ");
 		}
 		System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
-		
+
 
 		if (handValue >= 17) {
 			playerAction = PlayerAction.STAND;

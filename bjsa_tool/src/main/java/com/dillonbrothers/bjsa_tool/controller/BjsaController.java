@@ -4,8 +4,10 @@ import java.math.BigInteger;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dillonbrothers.bjsa_tool.model.ExperimentalRequest;
 import com.dillonbrothers.bjsa_tool.model.PlayerAction;
 import com.dillonbrothers.bjsa_tool.service.BjsaService;
 import com.dillonbrothers.results_response.ExpectedValueResponse;
@@ -24,10 +26,10 @@ public class BjsaController {
 
     @GetMapping("/v1/run-experimental-strategy")
     public ExpectedValueResponse calculateExpectedValue
-        (@PathVariable String dealerUpCard, @PathVariable BigInteger executionTimes, 
-            @PathVariable PlayerAction deviation, @PathVariable String startingHand) {
+        (@RequestBody ExperimentalRequest request) {
         
-        ExpectedValueResponse response = service.calculateExpectedValue(dealerUpCard, executionTimes, deviation, startingHand);
+        ExpectedValueResponse response = service.calculateExpectedValue(
+            request.getDealerUpCard(), request.getExecutionTimes(), request.getAction(), request.getHand());
         return response;
     } //calculateExpectedValue
 
