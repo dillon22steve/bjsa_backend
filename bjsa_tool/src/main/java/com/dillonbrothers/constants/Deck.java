@@ -98,6 +98,10 @@ public class Deck {
 
         discardPileIndex--;
 
+        if (discardPileIndex <= 80) {
+            shuffleDeck();
+        } //if
+
         return placeholder;
     } //removeCardFromDeck
 

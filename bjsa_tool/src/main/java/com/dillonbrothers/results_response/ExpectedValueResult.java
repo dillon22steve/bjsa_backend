@@ -1,5 +1,7 @@
 package com.dillonbrothers.results_response;
 
+import java.text.DecimalFormat;
+
 public class ExpectedValueResult {
 
     private int handsWon;
@@ -18,7 +20,9 @@ public class ExpectedValueResult {
         int calculation = (handsWon * moneyWon) - (handsLost * moneyLost);
         this.handsWon = handsWon;
         this.handsLost = handsLost;
-        expectedValue = "" + calculation;
+
+        DecimalFormat df = new DecimalFormat("###,###,###");
+        expectedValue = df.format(calculation);
     }
 
 

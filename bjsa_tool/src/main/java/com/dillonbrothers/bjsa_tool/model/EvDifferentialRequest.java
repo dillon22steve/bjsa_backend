@@ -98,7 +98,8 @@ public class EvDifferentialRequest {
 		Card dealerCard = null;
 
 
-		for (int i = 0; i < 13; i++) {
+		boolean cardsAreNull = (playerFirstCard == null || playerSecondCard == null || dealerCard == null);
+		for (int i = 0; i < Deck.DECK.length && cardsAreNull; i++) {
 			Card cardAtIndex = Deck.DECK[i];
 
 			if (cardAtIndex.getCardType() == firstCard) {
@@ -133,8 +134,8 @@ public class EvDifferentialRequest {
 
 	public ExpectedValueResult calculateExpectedValue() {
         while (executionTimes.compareTo(BigInteger.ZERO) >= 0) {
-			System.out.println("Next iteration");
-			System.out.println();
+			// System.out.println("Next iteration");
+			// System.out.println();
 			
             boolean playerBusted = false;
 			boolean dealerBusted = false;
@@ -144,11 +145,11 @@ public class EvDifferentialRequest {
 			} //if
 
             for (Hand currentHand : playerHands) {
-				System.out.print("Beginning Current hand: ");
-				for (Card card : currentHand.getCards()) {
-					System.out.print(card.getCardType() + ", ");
-				}
-				System.out.print("\n");
+				// System.out.print("Beginning Current hand: ");
+				// for (Card card : currentHand.getCards()) {
+				// 	System.out.print(card.getCardType() + ", ");
+				// }
+				// System.out.print("\n");
 
                 if (currentHand.hasBlackJack()) {
                     winnings = winnings + (bet * (3 / 2));
@@ -159,7 +160,7 @@ public class EvDifferentialRequest {
                     while (playerAction != PlayerAction.STAND && !playerBusted) {
 						preformBasicStrategy(currentHand);
 						if (currentHand.getValue() > 21) {
-							System.out.println("Player lost");
+							//System.out.println("Player lost");
 							playerBusted = true;
 							losses = losses + bet;
 							handsLost++;
@@ -175,34 +176,34 @@ public class EvDifferentialRequest {
 					} //if
 
 
-					System.out.print("Final player current hand: ");
-					for (Card card : currentHand.getCards()) {
-						System.out.print(card.getCardType() + ", ");
-					} //for
-					System.out.print("\n");
+					// System.out.print("Final player current hand: ");
+					// for (Card card : currentHand.getCards()) {
+					// 	System.out.print(card.getCardType() + ", ");
+					// } //for
+					// System.out.print("\n");
 
-					System.out.print("Dealer final hand: ");
-					for (Card card : dealerHand.getCards()) {
-						System.out.print(card.getCardType() + ", ");
-					}
-					System.out.print("\n");
+					// System.out.print("Dealer final hand: ");
+					// for (Card card : dealerHand.getCards()) {
+					// 	System.out.print(card.getCardType() + ", ");
+					// }
+					// System.out.print("\n");
 					
 
 					//Check to see if the player won or lost the hand.
 					if (!playerBusted) {
 						if (dealerBusted) {
-							System.out.println("Player won");
+							//System.out.println("Player won");
 							winnings = winnings + bet;
 							handsWon++;
 						} else {
 							if (currentHand.getValue() > dealerHand.getValue()) {
-								System.out.println("Player won");
+								//System.out.println("Player won");
 								winnings = winnings + bet;
 								handsWon++;
 							} else if (currentHand.getValue() == dealerHand.getValue()) {
 								//push
 							} else {
-								System.out.println("Player lost");
+								//System.out.println("Player lost");
 								losses = losses + bet;
 								handsLost++;
 							} //if
@@ -218,7 +219,7 @@ public class EvDifferentialRequest {
 				//Resetting this so the basic strategy while loop above will run on the next iteration.
 				//If it is still set to stand it will not run.
 				playerAction = PlayerAction.HIT;
-				System.out.println();
+				//System.out.println();
             } //for
             
 			executionTimes = executionTimes.subtract(BigInteger.ONE);
@@ -243,7 +244,7 @@ public class EvDifferentialRequest {
 
 
     private void performDeviation() {
-		System.out.println("Performing deviation");
+		//System.out.println("Performing deviation");
 		switch (deviation) {
 			case PlayerAction.HIT:
 				hit(playerHands.get(0));
@@ -259,13 +260,13 @@ public class EvDifferentialRequest {
 				break;
 		} //switch
 
-		for (Hand hand : playerHands) {
-			for (Card card : hand.getCards()) {
-				System.out.print(card.getCardType() + ", ");
-			}
-			System.out.print("\n");
-		} //for
-		System.out.println();
+		// for (Hand hand : playerHands) {
+		// 	for (Card card : hand.getCards()) {
+		// 		System.out.print(card.getCardType() + ", ");
+		// 	}
+		// 	System.out.print("\n");
+		// } //for
+		// System.out.println();
     } //performDeviation
 
 
@@ -287,11 +288,11 @@ public class EvDifferentialRequest {
 
 	private void performBasicStrategyHardTotal(Hand currentHand) {
 		int handValue = currentHand.getValue();
-		System.out.print("Performing basic strategy hard total on handValue: ");
-		for (Card  card : currentHand.getCards()) {
-			System.out.print(card.getCardType() + ", ");
-		}
-		System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
+		// System.out.print("Performing basic strategy hard total on handValue: ");
+		// for (Card  card : currentHand.getCards()) {
+		// 	System.out.print(card.getCardType() + ", ");
+		// }
+		// System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
 
 
 		if (handValue >= 17) {
@@ -326,7 +327,7 @@ public class EvDifferentialRequest {
 			playerAction = PlayerAction.HIT;
 		} //if
 
-		System.out.print("New hand after " + playerAction + ": ");
+		//System.out.print("New hand after " + playerAction + ": ");
 
 
 		switch (playerAction) {
@@ -338,11 +339,11 @@ public class EvDifferentialRequest {
 				break;
 		} //switch
 
-		for (Card  card : currentHand.getCards()) {
-			System.out.print(card.getCardType() + ", ");
-		} //for
-		System.out.print("\n");
-		System.out.println();
+		// for (Card  card : currentHand.getCards()) {
+		// 	System.out.print(card.getCardType() + ", ");
+		// } //for
+		// System.out.print("\n");
+		// System.out.println();
 	} //performBasicStrategyHardTotal
 
 
@@ -353,8 +354,8 @@ public class EvDifferentialRequest {
 				softTotal += currentCard.getValue();
 			} //if
 		} //for
-		System.out.print("Performing basic strategy soft total on soft total: " + softTotal);
-		System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
+		// System.out.print("Performing basic strategy soft total on soft total: " + softTotal);
+		// System.out.print(" and dealerUpCard: " + dealerUpCardValue + "\n");
 
 		if (softTotal == 9) {
 			playerAction = PlayerAction.STAND;
@@ -393,7 +394,7 @@ public class EvDifferentialRequest {
 		} //if
 
 
-		System.out.print("New hand after " + playerAction + ": ");
+		//System.out.print("New hand after " + playerAction + ": ");
 
 		
 		switch (playerAction) {
@@ -405,11 +406,11 @@ public class EvDifferentialRequest {
 				break;
 		} //switch
 
-		for (Card  card : currentHand.getCards()) {
-			System.out.print(card.getCardType() + ", ");
-		} //for
-		System.out.print("\n");
-		System.out.println();
+		// for (Card  card : currentHand.getCards()) {
+		// 	System.out.print(card.getCardType() + ", ");
+		// } //for
+		// System.out.print("\n");
+		// System.out.println();
 	} //performBasicStrategySoftTotal
 
 

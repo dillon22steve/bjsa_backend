@@ -20,7 +20,10 @@ public class ExpectedValueResponse {
         this.experimentalStrategy = experimentalStrategy;
 
         //Still Figure out the experimental strategy part
-
+        String basicStrategyString = "" + basicStrategy.getExpectedValue();
+        String experimentalString = "" + experimentalStrategy.getExpectedValue();
+        this.expectedValue = "Basic strategy expected value: " + basicStrategyString + 
+            " , Experimental strategy expected value: " + experimentalString;
     } //constructor
 
 

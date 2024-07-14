@@ -30,6 +30,8 @@ public class BjsaController {
         
         ExpectedValueResponse response = service.calculateExpectedValue(
             request.getDealerUpCard(), request.getExecutionTimes(), request.getAction(), request.getHand());
+        
+        System.out.println(response.getExpectedValue());
         return response;
     } //calculateExpectedValue
 

@@ -22,7 +22,9 @@ public class BjsaService {
 
         request = new EvDifferentialRequest(startingHand, dealerUpCardChar, executionTimes, 20, deviation, false);
         ExpectedValueResult basicStrategyResult = request.calculateExpectedValue();
+        System.out.println("Previous call finished");
 
+        System.out.println("Calling EVDifferentialRequest");
         request = new EvDifferentialRequest(startingHand, dealerUpCardChar, executionTimes, 20, deviation, true);
         ExpectedValueResult experimentalResult = request.calculateExpectedValue();
 
